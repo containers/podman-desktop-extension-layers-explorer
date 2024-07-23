@@ -28,8 +28,6 @@ const OPAQUE_WHITEOUT_MARKER = '.wh..wh..opq';
 let provider: extensionApi.ImageFilesProvider;
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  const telemetryLogger = extensionApi.env.createTelemetryLogger();
-
   provider = extensionApi.provider.createImageFilesProvider({
     getFilesystemLayers: getFilesystemLayers,
   });
@@ -54,10 +52,6 @@ async function getFilesystemLayers(image: extensionApi.ImageInfo, _token?: exten
       console.error(`unable to delete directory ${tmpdir}: ${String(err)}`);
     });
   }
-}
-
-interface ExtendedNodeEntry extends nodeTar.ReadEntry {
-  linkpath: string;
 }
 
 interface History {
@@ -86,7 +80,7 @@ async function getLayersFromImageArchive(tmpdir: string): Promise<extensionApi.I
     const layerTar = path.join(tmpdir, layer);
     await nodeTar.list({
       file: layerTar,
-      onentry: (entry: ExtendedNodeEntry) => {
+      onentry: (entry: nodeTar.ReadEntry) => {
         if (isWhiteout(entry.path)) {
           if (isOpaqueWhiteout(entry.path)) {
             provider.addOpaqueWhiteout(currentLayer, path.dirname(entry.path));
