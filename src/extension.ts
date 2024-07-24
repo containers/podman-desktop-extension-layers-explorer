@@ -38,7 +38,10 @@ export function deactivate(): void {
   console.log('stopping layers-explorer extension');
 }
 
-async function getFilesystemLayers(image: extensionApi.ImageInfo, _token?: extensionApi.CancellationToken): Promise<extensionApi.ImageFilesystemLayers> {
+async function getFilesystemLayers(
+  image: extensionApi.ImageInfo,
+  _token?: extensionApi.CancellationToken,
+): Promise<extensionApi.ImageFilesystemLayers> {
   const tmpdir = await mkdtemp(path.join(os.tmpdir(), 'podman-desktop'));
   try {
     const tarFile = path.join(tmpdir, image.Id + '.tar');
@@ -59,7 +62,7 @@ interface History {
   empty_layer?: boolean;
 }
 
-async function getLayersFromImageArchive(tmpdir: string): Promise<extensionApi.ImageFilesystemLayers> {  
+async function getLayersFromImageArchive(tmpdir: string): Promise<extensionApi.ImageFilesystemLayers> {
   const fileContent = await readFile(path.join(tmpdir, 'manifest.json'), 'utf-8');
   const manifest = JSON.parse(fileContent);
   if (manifest.length < 1) {
@@ -97,7 +100,7 @@ async function getLayersFromImageArchive(tmpdir: string): Promise<extensionApi.I
             path: entry.path,
             mode: entry.mode,
             linkPath: entry.linkpath,
-          })
+          });
         } else {
           provider.addFile(currentLayer, {
             path: entry.path,
@@ -106,12 +109,12 @@ async function getLayersFromImageArchive(tmpdir: string): Promise<extensionApi.I
           });
         }
       },
-    });    
+    });
     layersResult.push(currentLayer);
   }
 
   let i = layersResult.length - 1;
-  for (const histo of history.reverse()) {
+  for (const histo of history.slice().reverse()) {
     if (histo.empty_layer) {
       continue;
     }
