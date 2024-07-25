@@ -40,12 +40,12 @@ export function deactivate(): void {
 
 async function getFilesystemLayers(
   image: extensionApi.ImageInfo,
-  _token?: extensionApi.CancellationToken,
+  token?: extensionApi.CancellationToken,
 ): Promise<extensionApi.ImageFilesystemLayers> {
   const tmpdir = await mkdtemp(path.join(os.tmpdir(), 'podman-desktop'));
   try {
     const tarFile = path.join(tmpdir, image.Id + '.tar');
-    await extensionApi.containerEngine.saveImage(image.engineId, image.Id, tarFile);
+    await extensionApi.containerEngine.saveImage(image.engineId, image.Id, tarFile, token);
     await nodeTar.extract({ file: tarFile, cwd: tmpdir });
     return await getLayersFromImageArchive(tmpdir);
   } catch (e: unknown) {
