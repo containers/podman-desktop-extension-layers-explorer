@@ -20,6 +20,10 @@ import path from 'node:path';
 
 const config = {
   test: {
+    coverage: {
+      provider: 'v8',
+      reporter: ['lcov', 'text']
+    },
   },
   resolve: {
     alias: {
