@@ -21,7 +21,7 @@
     "watch": "vite build -w"
   },
   "dependencies": {
-    "tar": "^7.4.0"
+    "tar": "^7.4.3"
   },
   "devDependencies": {
     "@types/node": "^20",
