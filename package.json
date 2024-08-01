@@ -28,7 +28,7 @@
     "@podman-desktop/api": "^1.12.0-202407181817-86c7ee8",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^6.19.1",
-    "@vitest/coverage-v8": "^1.2.1",
+    "@vitest/coverage-v8": "^2.0.5",
     "eslint": "^8.56.0",
     "eslint-import-resolver-custom-alias": "^1.3.2",
     "eslint-import-resolver-typescript": "^3.6.1",
@@ -40,6 +40,6 @@
     "typescript": "5.3.3",
     "validator": "^13.11.0",
     "vite": "^5.3.5",
-    "vitest": "^1.2.1"
+    "vitest": "^2.0.5"
   }
 }
