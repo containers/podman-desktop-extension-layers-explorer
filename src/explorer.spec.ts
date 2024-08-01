@@ -1,14 +1,32 @@
-import { expect, test, vi } from "vitest";
-import { Explorer } from "./explorer";
+/**********************************************************************
+ * Copyright (C) 2024 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ***********************************************************************/
+
+import { expect, test, vi } from 'vitest';
+import { Explorer } from './explorer';
 import { containerEngine } from '@podman-desktop/api';
-import { cp } from "fs/promises";
-import * as path from "path";
+import { cp } from 'node:fs/promises';
+import * as path from 'node:path';
 
 vi.mock('@podman-desktop/api', async () => {
   return {
     containerEngine: {
       saveImage: vi.fn(),
-    }
+    },
   };
 });
 
@@ -24,9 +42,11 @@ test('getFilesystemLayers', async () => {
   const explorer = new Explorer();
   explorer.setProvider(provider);
 
-  vi.mocked(containerEngine).saveImage.mockImplementation(async (_engineId: string, _imageId: string, tarFile: string) => {
-    await cp(path.join(__dirname, '../tests/archive.tar'), tarFile);
-  });
+  vi.mocked(containerEngine).saveImage.mockImplementation(
+    async (_engineId: string, _imageId: string, tarFile: string) => {
+      await cp(path.join(__dirname, '../tests/archive.tar'), tarFile);
+    },
+  );
   const result = await explorer.getFilesystemLayers({
     engineId: '',
     engineName: '',
@@ -37,20 +57,20 @@ test('getFilesystemLayers', async () => {
     Size: 1,
     VirtualSize: 1,
     SharedSize: 1,
-    Labels: { },
+    Labels: {},
     Containers: 1,
     Digest: '',
   });
   const layers = [
     {
       id: '8e13bc96641a',
-      createdBy: 'BusyBox 1.36.1 (glibc), Debian 12'
+      createdBy: 'BusyBox 1.36.1 (glibc), Debian 12',
     },
     { id: 'e4423e7382d4', createdBy: '/bin/sh -c echo -n 1 > 1.txt' },
     { id: '6f35d54b965c', createdBy: '/bin/sh -c echo -n 12 > 2.txt' },
     { id: '0cb105fbebcc', createdBy: '/bin/sh -c echo -n 123 > 3.txt' },
-    { id: '651b9c981348', createdBy: '/bin/sh -c rm 2.txt' }
-];
+    { id: '651b9c981348', createdBy: '/bin/sh -c rm 2.txt' },
+  ];
   expect(result).toEqual({
     layers,
   });
