@@ -26,7 +26,7 @@
   "devDependencies": {
     "@types/node": "^20",
     "@podman-desktop/api": "^1.12.0-202407181817-86c7ee8",
-    "@typescript-eslint/eslint-plugin": "^6.19.1",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^6.19.1",
     "@vitest/coverage-v8": "^1.2.1",
     "eslint": "^8.56.0",
