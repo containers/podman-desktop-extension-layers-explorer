@@ -164,7 +164,9 @@ describe('cache', () => {
     mocks.fsReadFile.mockResolvedValue(content);
     const result = await cache.get({ Id: '1' } as ImageInfo);
     expect(result).not.toBeDefined();
-    expect(mocks.consoleWarnMock).toHaveBeenCalledWith('error getting/reading cache for 1');
+    expect(mocks.consoleWarnMock).toHaveBeenCalledWith(
+      'error getting/reading cache for 1: Error: incorrect header check',
+    );
   });
 
   it('get should return undefined if no cache exists', async () => {

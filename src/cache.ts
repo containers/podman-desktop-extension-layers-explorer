@@ -39,7 +39,11 @@ export class Cache {
   ) {}
 
   public async init() {
-    await this.limitSize(0);
+    try {
+      await this.limitSize(0);
+    } catch (err: unknown) {
+      console.warn(`error clearing cache: ${err}`);
+    }
   }
 
   // Returns the cached data for an image
@@ -60,7 +64,7 @@ export class Cache {
       if (this.isErrorWithCode(error) && error.code === 'ENOENT') {
         return undefined;
       } else {
-        console.warn(`error getting/reading cache for ${image.Id}`);
+        console.warn(`error getting/reading cache for ${image.Id}: ${error}`);
         return undefined;
       }
     }
@@ -68,13 +72,17 @@ export class Cache {
 
   // cache data for an image and removes older cache files to remain in the cache size limit
   public async save(image: ImageInfo, layers: ImageFilesystemLayers): Promise<void> {
-    const compressed = await gzip(JSON.stringify(layers));
-    await this.limitSize(compressed.length);
-    if (compressed.length <= 1024 * 1024 * this.preferences.getCacheSize()) {
-      const filepath = this.getImageCacheFile(image);
-      const basedir = path.dirname(filepath);
-      await mkdir(basedir, { recursive: true });
-      await writeFile(filepath, compressed);
+    try {
+      const compressed = await gzip(JSON.stringify(layers));
+      await this.limitSize(compressed.length);
+      if (compressed.length <= 1024 * 1024 * this.preferences.getCacheSize()) {
+        const filepath = this.getImageCacheFile(image);
+        const basedir = path.dirname(filepath);
+        await mkdir(basedir, { recursive: true });
+        await writeFile(filepath, compressed);
+      }
+    } catch (err: unknown) {
+      console.warn(`error saving cache file for ${image.Id}`);
     }
   }
 
@@ -117,20 +125,29 @@ export class Cache {
 
   // returns the list of cache files, sorted by access time, last accessed first
   public async getSortedFilesByAtime(dir: string): Promise<CacheFileInfo[]> {
-    const files = await readdir(dir);
-    return files
-      .map(fileName => {
-        const stats = statSync(`${dir}/${fileName}`);
-        return {
-          name: fileName,
-          atime: stats.atime.getTime(),
-          size: stats.size,
-        };
-      })
-      .sort((a, b) => b.atime - a.atime)
-      .map(file => ({
-        name: file.name,
-        size: file.size,
-      }));
+    try {
+      const files = await readdir(dir);
+      return files
+        .map(fileName => {
+          const stats = statSync(`${dir}/${fileName}`);
+          return {
+            name: fileName,
+            atime: stats.atime.getTime(),
+            size: stats.size,
+          };
+        })
+        .sort((a, b) => b.atime - a.atime)
+        .map(file => ({
+          name: file.name,
+          size: file.size,
+        }));
+    } catch (err: unknown) {
+      if (this.isErrorWithCode(err) && err.code === 'ENOENT') {
+        return [];
+      } else {
+        console.warn('error getting files in layers cache');
+        return [];
+      }
+    }
   }
 }
