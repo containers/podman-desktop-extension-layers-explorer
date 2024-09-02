@@ -182,15 +182,15 @@ describe('cache', () => {
   it('limitSize should not delete cache file when there is enough room', async () => {
     const files: CacheFileInfo[] = [
       {
-        name: 'sha256:1.gz',
+        name: '1.gz',
         size: 300000,
       },
       {
-        name: 'sha256:2.gz',
+        name: '2.gz',
         size: 300000,
       },
       {
-        name: 'sha256:1.gz',
+        name: '1.gz',
         size: 300000,
       },
     ];
@@ -204,15 +204,15 @@ describe('cache', () => {
   it('limitSize should delete oldest cache file when there is no enough room', async () => {
     const files: CacheFileInfo[] = [
       {
-        name: 'sha256:1.gz',
+        name: '1.gz',
         size: 300000,
       },
       {
-        name: 'sha256:2.gz',
+        name: '2.gz',
         size: 300000,
       },
       {
-        name: 'sha256:3.gz',
+        name: '3.gz',
         size: 300000,
       },
     ];
@@ -222,34 +222,34 @@ describe('cache', () => {
     getSortedFilesByAtimeMock.mockResolvedValue(files);
     await cache.limitSize(300000);
     expect(deleteCacheFileMock).toHaveBeenCalledOnce();
-    expect(deleteCacheFileMock).toHaveBeenCalledWith('sha256:3.gz');
+    expect(deleteCacheFileMock).toHaveBeenCalledWith('3.gz');
   });
 
   it('limitSize should delete old cache file when there is no enough room, but keep small older ones', async () => {
     // here, 3 and 6 are removed, but 4 and 5 are kept
     const files: CacheFileInfo[] = [
       {
-        name: 'sha256:1.gz',
+        name: '1.gz',
         size: 300000,
       },
       {
-        name: 'sha256:2.gz',
+        name: '2.gz',
         size: 300000,
       },
       {
-        name: 'sha256:3.gz',
+        name: '3.gz',
         size: 300000,
       },
       {
-        name: 'sha256:4.gz',
+        name: '4.gz',
         size: 30,
       },
       {
-        name: 'sha256:5.gz',
+        name: '5.gz',
         size: 30,
       },
       {
-        name: 'sha256:6.gz',
+        name: '6.gz',
         size: 300000,
       },
     ];
@@ -259,26 +259,26 @@ describe('cache', () => {
     getSortedFilesByAtimeMock.mockResolvedValue(files);
     await cache.limitSize(300000);
     expect(deleteCacheFileMock).toHaveBeenCalledTimes(2);
-    expect(deleteCacheFileMock).toHaveBeenCalledWith('sha256:3.gz');
-    expect(deleteCacheFileMock).toHaveBeenCalledWith('sha256:6.gz');
+    expect(deleteCacheFileMock).toHaveBeenCalledWith('3.gz');
+    expect(deleteCacheFileMock).toHaveBeenCalledWith('6.gz');
   });
 
   it('getSortedFilesByAtime should return the list of cache files, more recently accessed first', async () => {
-    mocks.fsReaddir.mockResolvedValue(['sha256:1.gz', 'sha256:2.gz', 'sha256:3.gz']);
+    mocks.fsReaddir.mockResolvedValue(['1.gz', '2.gz', '3.gz']);
     mocks.fsStatSync.mockImplementation((file: string) => {
       const now = Date.now();
       switch (file) {
-        case '/a/dir/sha256:1.gz':
+        case '/a/dir/1.gz':
           return {
             atime: new Date(now - 1 * 60 * 1000), // most recent
             size: 100000,
           };
-        case '/a/dir/sha256:2.gz':
+        case '/a/dir/2.gz':
           return {
             atime: new Date(now - 3 * 60 * 1000), // oldest
             size: 200000,
           };
-        case '/a/dir/sha256:3.gz':
+        case '/a/dir/3.gz':
           return {
             atime: new Date(now - 2 * 60 * 1000),
             size: 300000,
@@ -288,15 +288,15 @@ describe('cache', () => {
     const files = await cache.getSortedFilesByAtime('/a/dir');
     expect(files).toEqual([
       {
-        name: 'sha256:1.gz',
+        name: '1.gz',
         size: 100000,
       },
       {
-        name: 'sha256:3.gz',
+        name: '3.gz',
         size: 300000,
       },
       {
-        name: 'sha256:2.gz',
+        name: '2.gz',
         size: 200000,
       },
     ]);
@@ -309,7 +309,7 @@ describe('cache', () => {
     await cache.save({ Id: 'sha256:1' } as ImageInfo, layers);
     const expectedContent = await gzip(JSON.stringify(layers));
     expect(mocks.fsMkdir).toHaveBeenCalledWith('/path/to/extension/cache/v1', { recursive: true });
-    expect(mocks.fsWriteFile).toHaveBeenCalledWith('/path/to/extension/cache/v1/sha256:1.gz', expectedContent);
+    expect(mocks.fsWriteFile).toHaveBeenCalledWith('/path/to/extension/cache/v1/1.gz', expectedContent);
   });
 
   it('save does not write cache file if cache size is 0', async () => {

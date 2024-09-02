@@ -56,7 +56,7 @@ export class Cache {
       try {
         await utimes(filepath, new Date(), new Date());
       } catch (err: unknown) {
-        console.warn(`unable to modify atime and mtime for ${image.Id} cache file: ${err}`);
+        console.warn(`unable to modify atime and mtime for ${this.getShortImageId(image.Id)} cache file: ${err}`);
       }
       const content = await gunzip(compressed);
       return JSON.parse(content.toString());
@@ -64,7 +64,7 @@ export class Cache {
       if (this.isErrorWithCode(error) && error.code === 'ENOENT') {
         return undefined;
       } else {
-        console.warn(`error getting/reading cache for ${image.Id}: ${error}`);
+        console.warn(`error getting/reading cache for ${this.getShortImageId(image.Id)}: ${error}`);
         return undefined;
       }
     }
@@ -82,7 +82,7 @@ export class Cache {
         await writeFile(filepath, compressed);
       }
     } catch (err: unknown) {
-      console.warn(`error saving cache file for ${image.Id}`);
+      console.warn(`error saving cache file for ${this.getShortImageId(image.Id)}`);
     }
   }
 
@@ -104,7 +104,7 @@ export class Cache {
   }
 
   public async clearImageCache(id: string): Promise<void> {
-    return this.deleteCacheFile(`sha256:${id}.gz`);
+    return this.deleteCacheFile(`${id}.gz`);
   }
 
   public async deleteCacheFile(filename: string): Promise<void> {
@@ -115,8 +115,16 @@ export class Cache {
     return path.join(this.path, 'cache', 'v1');
   }
 
+  private getShortImageId(id: string): string {
+    const prefix = 'sha256:';
+    if (id.startsWith(prefix)) {
+      return id.slice(prefix.length);
+    }
+    return id;
+  }
+
   private getImageCacheFile(image: ImageInfo): string {
-    return path.join(this.getRootDir(), image.Id + '.gz');
+    return path.join(this.getRootDir(), this.getShortImageId(image.Id) + '.gz');
   }
 
   private isErrorWithCode(err: unknown): err is Error & { code: unknown } {
