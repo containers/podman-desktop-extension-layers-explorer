@@ -23,7 +23,7 @@ export class Preferences {
 
   init(): void {
     const config = configuration.getConfiguration('layers-explorer');
-    this.#cacheSize = config.get<number>('cacheSize');
+    this.#cacheSize = config.get<number>('cacheSize', 100);
   }
 
   getCacheSize(): number {
