@@ -21,6 +21,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import * as nodeTar from 'tar';
+import type { Cache } from './cache';
 
 const WHITEOUT_MARKER = '.wh.';
 const OPAQUE_WHITEOUT_MARKER = '.wh..wh..opq';
@@ -33,6 +34,8 @@ interface History {
 export class Explorer {
   #provider: extensionApi.ImageFilesProvider | undefined;
 
+  constructor(private cache: Cache) {}
+
   setProvider(provider: extensionApi.ImageFilesProvider) {
     this.#provider = provider;
   }
@@ -41,12 +44,19 @@ export class Explorer {
     image: extensionApi.ImageInfo,
     token?: extensionApi.CancellationToken,
   ): Promise<extensionApi.ImageFilesystemLayers> {
+    const cached = await this.cache.get(image);
+    if (cached) {
+      return cached;
+    }
+
     const tmpdir = await mkdtemp(path.join(os.tmpdir(), 'podman-desktop'));
     try {
       const tarFile = path.join(tmpdir, image.Id + '.tar');
       await extensionApi.containerEngine.saveImage(image.engineId, image.Id, tarFile, token);
       await nodeTar.extract({ file: tarFile, cwd: tmpdir });
-      return await this.getLayersFromImageArchive(tmpdir);
+      const result = await this.getLayersFromImageArchive(tmpdir);
+      await this.cache.save(image, result);
+      return result;
     } catch (e: unknown) {
       console.error('error extracting image layers', e);
     } finally {

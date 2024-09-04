@@ -18,16 +18,30 @@
 
 import * as extensionApi from '@podman-desktop/api';
 import { Explorer } from './explorer';
+import { Cache } from './cache';
+import { Preferences } from './preferences';
 
 let provider: extensionApi.ImageFilesProvider;
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  const explorer = new Explorer();
+  const preferences = new Preferences();
+  preferences.init();
+  const cache = new Cache(preferences, extensionContext.storagePath);
+  await cache.init();
+  const explorer = new Explorer(cache);
+
   provider = extensionApi.provider.createImageFilesProvider({
     getFilesystemLayers: explorer.getFilesystemLayers.bind(explorer),
   });
   explorer.setProvider(provider);
   extensionContext.subscriptions.push(provider);
+
+  const eventListener = extensionApi.containerEngine.onEvent(async (event: extensionApi.ContainerJSONEvent) => {
+    if (event.Type === 'image' && event.status === 'delete') {
+      await cache.clearImageCache(event.id);
+    }
+  });
+  extensionContext.subscriptions.push(eventListener);
 }
 
 export function deactivate(): void {
