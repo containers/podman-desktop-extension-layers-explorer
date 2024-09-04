@@ -59,6 +59,7 @@ export class Explorer {
       return result;
     } catch (e: unknown) {
       console.error('error extracting image layers', e);
+      return { layers: [] };
     } finally {
       rm(tmpdir, { force: true, recursive: true }).catch((err: unknown) => {
         console.error(`unable to delete directory ${tmpdir}: ${String(err)}`);
@@ -92,6 +93,9 @@ export class Explorer {
       await nodeTar.list({
         file: layerTar,
         onentry: (entry: nodeTar.ReadEntry) => {
+          if (!this.#provider) {
+            throw new Error('not initialized yet');
+          }
           if (this.isWhiteout(entry.path)) {
             if (this.isOpaqueWhiteout(entry.path)) {
               this.#provider.addOpaqueWhiteout(currentLayer, path.dirname(entry.path));
@@ -101,18 +105,18 @@ export class Explorer {
           } else if (entry.type === 'Directory') {
             this.#provider.addDirectory(currentLayer, {
               path: entry.path,
-              mode: entry.mode,
+              mode: entry.mode ?? 0,
             });
           } else if (entry.type === 'SymbolicLink') {
             this.#provider.addSymlink(currentLayer, {
               path: entry.path,
-              mode: entry.mode,
-              linkPath: entry.linkpath,
+              mode: entry.mode ?? 0,
+              linkPath: entry.linkpath ?? '',
             });
           } else {
             this.#provider.addFile(currentLayer, {
               path: entry.path,
-              mode: entry.mode,
+              mode: entry.mode ?? 0,
               size: entry.size,
             });
           }
@@ -136,21 +140,17 @@ export class Explorer {
 
   isWhiteout(p: string): boolean {
     const basename = path.basename(p);
-    if (basename.startsWith(WHITEOUT_MARKER)) {
-      return true;
-    }
+    return basename.startsWith(WHITEOUT_MARKER);
   }
 
   isOpaqueWhiteout(p: string): boolean {
     const basename = path.basename(p);
-    if (basename === OPAQUE_WHITEOUT_MARKER) {
-      return true;
-    }
+    return basename === OPAQUE_WHITEOUT_MARKER;
   }
 
   getHiddenFile(p: string): string {
     if (!this.isWhiteout(p)) {
-      throw `${p} is not a whiteout`;
+      throw new Error(`${p} is not a whiteout`);
     }
     const dirname = path.dirname(p);
     const basename = path.basename(p);

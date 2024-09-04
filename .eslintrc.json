@@ -88,6 +88,7 @@
     "sonarjs/no-duplicate-string": "off",
     "sonarjs/no-empty-collection": "off",
     "sonarjs/no-small-switch": "off",
+    "sonarjs/no-ignored-exceptions": "off",
     "etc/no-commented-out-code": "error",
     "etc/no-deprecated": "off",
     "redundant-undefined/redundant-undefined": "error"

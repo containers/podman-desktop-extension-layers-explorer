@@ -96,10 +96,10 @@ describe('cache', () => {
     const zipped = await gzip(content);
     mocks.fsReadFile.mockResolvedValue(zipped);
     const result = await cache.get({ Id: '1' } as ImageInfo);
-    expect(result.layers).toBeDefined();
-    expect(result.layers.length).toBe(1);
-    expect(result.layers[0].files).toBeDefined();
-    expect(result.layers[0].files.length).toBe(1);
+    expect(result?.layers).toBeDefined();
+    expect(result?.layers.length).toBe(1);
+    expect(result?.layers[0].files).toBeDefined();
+    expect(result?.layers[0].files?.length).toBe(1);
     expect(mocks.consoleWarnMock).not.toHaveBeenCalled();
   });
 
@@ -129,10 +129,10 @@ describe('cache', () => {
     mocks.fsReadFile.mockResolvedValue(zipped);
     mocks.fsUtimes.mockRejectedValue(new Error('an error'));
     const result = await cache.get({ Id: '1' } as ImageInfo);
-    expect(result.layers).toBeDefined();
-    expect(result.layers.length).toBe(1);
-    expect(result.layers[0].files).toBeDefined();
-    expect(result.layers[0].files.length).toBe(1);
+    expect(result?.layers).toBeDefined();
+    expect(result?.layers.length).toBe(1);
+    expect(result?.layers[0].files).toBeDefined();
+    expect(result?.layers[0].files?.length).toBe(1);
     expect(mocks.consoleWarnMock).toHaveBeenCalledWith(
       'unable to modify atime and mtime for 1 cache file: Error: an error',
     );
