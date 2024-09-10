@@ -82,7 +82,7 @@ export class Cache {
         await writeFile(filepath, compressed);
       }
     } catch (err: unknown) {
-      console.warn(`error saving cache file for ${this.getShortImageId(image.Id)}`);
+      console.warn(`error saving cache file for ${this.getShortImageId(image.Id)}`, err);
     }
   }
 
