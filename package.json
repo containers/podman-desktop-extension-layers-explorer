@@ -2,7 +2,7 @@
   "name": "layers-explorer",
   "displayName": "Image Layers Explorer",
   "description": "Explore the files inside the different layers of a container image",
-  "version": "0.1.0-next",
+  "version": "0.1.0",
   "icon": "icon.png",
   "publisher": "podman-desktop",
   "license": "Apache-2.0",
