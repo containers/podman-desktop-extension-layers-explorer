@@ -51,10 +51,11 @@ describe('getFilesystemLayers', () => {
   beforeEach(() => {
     explorer = new Explorer(cache);
     explorer.setProvider(provider);
+    vi.resetAllMocks();
   });
 
   test('getFilesystemLayers without cache', async () => {
-    cacheGetMock.mockReturnValue(undefined);
+    cacheGetMock.mockResolvedValue(undefined);
 
     vi.mocked(containerEngine).saveImage.mockImplementation(
       async (_engineId: string, _imageId: string, tarFile: string) => {
@@ -129,7 +130,7 @@ describe('getFilesystemLayers', () => {
       ],
     };
 
-    cacheGetMock.mockReturnValue(layers);
+    cacheGetMock.mockResolvedValue(layers);
 
     const result = await explorer.getFilesystemLayers({
       engineId: '',
@@ -148,30 +149,11 @@ describe('getFilesystemLayers', () => {
     expect(result).toEqual({
       layers: layers.layers,
     });
-    expect(provider.addDirectory).toHaveBeenCalledWith(layers.layers[0], {
-      mode: 0o755,
-      path: 'lib/',
-    });
-    expect(provider.addSymlink).toHaveBeenCalledWith(layers.layers[0], {
-      mode: 0o777,
-      path: 'lib64',
-      linkPath: 'lib',
-    });
-    expect(provider.addFile).toHaveBeenCalledWith(layers.layers[1], {
-      mode: 0o644,
-      path: '1.txt',
-      size: 1,
-    });
-    expect(provider.addFile).toHaveBeenCalledWith(layers.layers[2], {
-      mode: 0o644,
-      path: '2.txt',
-      size: 2,
-    });
-    expect(provider.addFile).toHaveBeenCalledWith(layers.layers[3], {
-      mode: 0o644,
-      path: '3.txt',
-      size: 3,
-    });
-    expect(provider.addWhiteout).toHaveBeenCalledWith(layers.layers[4], '2.txt');
+    expect(provider.addDirectory).not.toHaveBeenCalled();
+    expect(provider.addSymlink).not.toHaveBeenCalled();
+    expect(provider.addFile).not.toHaveBeenCalled();
+    expect(provider.addFile).not.toHaveBeenCalled();
+    expect(provider.addFile).not.toHaveBeenCalled();
+    expect(provider.addWhiteout).not.toHaveBeenCalled();
   });
 });
