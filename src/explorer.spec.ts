@@ -156,4 +156,24 @@ describe('getFilesystemLayers', () => {
     expect(provider.addFile).not.toHaveBeenCalled();
     expect(provider.addWhiteout).not.toHaveBeenCalled();
   });
+
+  test('when an error happens', async () => {
+    vi.mocked(containerEngine).saveImage.mockRejectedValue(new Error('an error'));
+    await expect(
+      explorer.getFilesystemLayers({
+        engineId: '',
+        engineName: '',
+        Id: 'id',
+        ParentId: 'parentId',
+        RepoTags: [],
+        Created: 1,
+        Size: 1,
+        VirtualSize: 1,
+        SharedSize: 1,
+        Labels: {},
+        Containers: 1,
+        Digest: '',
+      }),
+    ).rejects.toThrowError('Error: an error');
+  });
 });
