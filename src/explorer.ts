@@ -58,8 +58,7 @@ export class Explorer {
       await this.cache.save(image, result);
       return result;
     } catch (e: unknown) {
-      console.error('error extracting image layers', e);
-      return { layers: [] };
+      throw new Error(`error extracting image layers: ${e}`);
     } finally {
       rm(tmpdir, { force: true, recursive: true }).catch((err: unknown) => {
         console.error(`unable to delete directory ${tmpdir}: ${String(err)}`);
