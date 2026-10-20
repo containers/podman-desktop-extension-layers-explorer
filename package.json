@@ -8,7 +8,6 @@
   "icon": "icon.png",
   "publisher": "podman-desktop",
   "license": "Apache-2.0",
-  "packageManager": "pnpm@11.16.0+sha512.b767e9a98fc87aec0f42daefcd0e84941c2cdb45d73c4e1e68860fb2bdfdbe032ab592105479e5e05c237f740c8a5ffdbbb52385797ddc2296745a1bbb883e8d",
   "engines": {
     "node": ">=24.0.0",
     "podman-desktop": ">=1.12.0"
@@ -56,5 +55,6 @@
     "validator": "^13.15.35",
     "vite": "^8.3.4",
     "vitest": "^5"
-  }
+  },
+  "packageManager": "pnpm@12.14.0+sha512.c18ba6d87993d3d164cb5e8948f32b2c06ee854487e06cd8d86781342fb3e5bb4634367034711e86802baa9c37bea906ce1929ad08d70884c97d801df13389a6"
 }
