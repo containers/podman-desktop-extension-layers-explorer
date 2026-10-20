@@ -19,7 +19,7 @@ FROM registry.access.redhat.com/ubi10/nodejs-24-minimal:10.1-1766060610 AS build
 
 WORKDIR /opt/app-root/src
 
-RUN npm i -g corepack@0.31.0 && corepack enable
+RUN npm i -g corepack@0.34.6 && corepack enable
 
 COPY --chown=1001:1001 . .
 
